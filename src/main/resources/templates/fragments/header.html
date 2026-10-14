@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<!--
+    ★★★ 공용 파일 ★★★  모든 화면 위에 붙는 머리띠(메뉴).
+
+    각 화면에서 이렇게 끼운다:
+        <div th:replace="~{fragments/header :: header}"></div>
+
+    규칙: 번호마다 자기 메뉴 자리에 "한 줄"만 넣는다.
+-->
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<body>
+<header th:fragment="header" class="topbar">
+    <a th:href="@{/}" class="logo">🧩 미로 실험실</a>
+
+    <nav class="menu">
+        <!-- [1번 미로] 메뉴 자리     예) <a th:href="@{/maze}">미로</a> -->
+        <!-- [2번 데이터] 메뉴 자리   (화면 메뉴 없음. API 만) -->
+        <!-- [3번 회원·랭킹·게시판] 메뉴 자리   예) <a th:href="@{/rank}">랭킹</a> <a th:href="@{/me}">내 기록</a> <a th:href="@{/boards}">게시판</a> -->
+        <!-- [관리자] -->
+        <span sec:authorize="hasRole('ADMIN')" class="badge">관리자</span>
+    </nav>
+
+    <div class="who">
+        <!-- 로그인 했으면: 아이디 + 로그아웃 -->
+        <th:block sec:authorize="isAuthenticated()">
+            <b sec:authentication="name">누구</b>
+            <!-- 로그아웃은 POST. th:action 이라 CSRF 표가 자동으로 붙는다 -->
+            <form th:action="@{/logout}" method="post" class="inline">
+                <button type="submit" class="link">로그아웃</button>
+            </form>
+        </th:block>
+        <!-- 로그인 안 했으면 -->
+        <a sec:authorize="isAnonymous()" th:href="@{/login}">로그인</a>
+        <a sec:authorize="isAnonymous()" th:href="@{/signup}">회원가입</a>
+    </div>
+</header>
+</body>
+</html>

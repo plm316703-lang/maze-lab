@@ -1,0 +1,24 @@
+# ============================================================
+# .editorconfig : 셋의 IntelliJ 를 같은 습관으로 맞추기
+# IntelliJ 가 자동으로 읽는다. (설정 안 해도 됨)
+# → 들여쓰기/인코딩이 사람마다 달라서 생기는 "가짜 변경"을 막는다
+# (주의: 이 파일은 주석을 값 옆에 쓰면 안 된다. 항상 따로 한 줄)
+# ============================================================
+root = true
+
+# 모든 파일: UTF-8, LF 줄바꿈, 파일 끝 빈 줄, 줄 끝 공백 삭제, 칸 4개 들여쓰기
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 4
+
+# 마크다운: 줄 끝 공백 2칸이 줄바꿈 의미라서 지우지 않는다
+[*.md]
+trim_trailing_whitespace = false
+
+# 윈도우 실행 파일만 CRLF
+[*.bat]
+end_of_line = crlf

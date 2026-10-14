@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<!-- [공용] 첫 화면 -->
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>미로 실험실</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<!-- 머리띠 끼우기. 새 화면 만들 때마다 이 한 줄 복사 -->
+<div th:replace="~{fragments/header :: header}"></div>
+
+<main class="page">
+    <h1>미로 실험실</h1>
+    <p class="sub">미로를 풀면 기록이 쌓이고, 최근 5판으로 능력치와 등급이 매겨진다.</p>
+    <p class="sub" sec:authorize="isAnonymous()">
+        연습 계정: <code>user / 1234</code>, <code>admin / 1234</code>
+    </p>
+
+    <!--
+        기능 카드 3개. 자기 기능이 완성되면 "만드는 중" → 링크로 바꾼다. (자기 카드만!)
+    -->
+    <div class="cards">
+        <!-- [1번 미로] 카드 -->
+        <section class="card">
+            <h2>🧩 미로</h2>
+            <p>스테이지를 골라 미로 풀기</p>
+            <span class="badge">만드는 중</span>
+        </section>
+
+        <!-- [2번 데이터] 카드 -->
+        <section class="card">
+            <h2>🧠 내 초파리 뇌</h2>
+            <p>능력치, 등급, 뇌 영역 진행률</p>
+            <span class="badge">만드는 중</span>
+        </section>
+
+        <!-- [3번 회원·랭킹·게시판] 카드 -->
+        <section class="card">
+            <h2>🏆 랭킹 · 게시판</h2>
+            <p>뇌 성장률 순위, 공략 게시판</p>
+            <span class="badge">만드는 중</span>
+        </section>
+    </div>
+</main>
+</body>
+</html>

@@ -1,0 +1,37 @@
+# ============================================================
+# application.yml : 서버 설정 (공유 DB 버전)   ★ 공용 파일
+#
+# ⚠️ YAML 은 "들여쓰기 = 소속" 이다. 칸 수가 틀리면 엉뚱한 곳에 붙는다.
+#    이 파일은 전부 "칸 2개씩" 들여쓴다. 탭(Tab) 금지, 스페이스만.
+# ============================================================
+server:
+  # ${PORT:8080} = "PORT 환경변수가 있으면 그거, 없으면 8080"
+  # 내 컴퓨터만 8080 이 막혔으면 이 파일 말고 실행 설정 환경 변수에 PORT=8081
+  port: ${PORT:8080}
+
+spring:
+  datasource:
+    # 공유 DB 주소 (팀 전원 같은 DB)
+    #   serverTimezone=Asia/Seoul     : 날짜가 9시간 어긋나지 않게
+    #   characterEncoding=UTF-8       : 한글 안 깨지게
+    #   allowPublicKeyRetrieval=true  : MySQL 8 로그인 방식 때문에 필요
+    #   useSSL=false                  : 학습용
+    url: jdbc:mysql://1.220.247.76:13306/pr1_team1db?serverTimezone=Asia/Seoul&characterEncoding=UTF-8&allowPublicKeyRetrieval=true&useSSL=false
+    # 아이디/비번은 파일에 절대 안 쓴다! (깃에 올라가면 누구나 DB 를 지울 수 있다)
+    # ${이름} = "환경 변수에서 꺼내 와라". 각자 IntelliJ 실행 설정에 넣는다
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+
+  jpa:
+    hibernate:
+      # ★★★ 공유 DB 규칙 ★★★
+      # validate = 테이블을 만들지도 고치지도 않고, Entity 와 맞는지 "검사만" 한다
+      # create / update 로 바꾸면 남의 테이블과 데이터를 지우거나 바꾼다. 절대 금지
+        # ★★★ 공유 DB 규칙 ★★★ 절대 create / update 로 바꾸지 않는다
+        ddl-auto: validate
+    # ↓ 여기부터는 hibernate 의 "형제" (jpa 바로 아래). hibernate 안에 넣으면 무시된다!
+    show-sql: true                  # 실행되는 SQL 을 콘솔에 보여준다 (공부용)
+    properties:
+      hibernate:
+        format_sql: true            # SQL 줄바꿈해서 보기 좋게
+    open-in-view: false             # DB 연결은 Service 안에서만 (화면에서 LAZY 조심)

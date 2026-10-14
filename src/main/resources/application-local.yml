@@ -1,0 +1,24 @@
+# ============================================================
+# application-local.yml : "내 컴퓨터 연습 DB" 설정 (선택)
+#
+# 언제 쓰나?
+#   공유 DB 에 SQL 을 실행하기 전에, 내 컴퓨터 MySQL 에서 먼저 시험해 볼 때.
+#   공유 DB 를 망가뜨릴 걱정 없이 테이블을 만들고 지우고 다시 만들 수 있다.
+#
+# 켜는 법 (IntelliJ 실행 설정)
+#   Active profiles : local
+#   환경 변수        : LOCAL_DB_USERNAME=root;LOCAL_DB_PASSWORD=내비번
+#
+# 이 파일은 application.yml 위에 "덮어쓰기"로 얹힌다.
+# 여기 적은 값만 바뀌고, 나머지(포트, JPA 설정 등)는 application.yml 그대로.
+# ============================================================
+spring:
+  datasource:
+    # 내 컴퓨터 MySQL 의 maze_local 데이터베이스 (먼저 DBeaver 에서 CREATE DATABASE maze_local;)
+    url: jdbc:mysql://localhost:3306/maze_local?serverTimezone=Asia/Seoul&characterEncoding=UTF-8&allowPublicKeyRetrieval=true&useSSL=false
+    username: ${LOCAL_DB_USERNAME:root}
+    password: ${LOCAL_DB_PASSWORD}
+  jpa:
+    hibernate:
+      # 연습 DB 도 validate 로 둔다. 공유 DB 와 똑같은 조건에서 시험해야 의미가 있다
+      ddl-auto: validate

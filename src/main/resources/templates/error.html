@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<!--
+    [공용 / 팀장] 에러 화면.
+    templates/error.html 이라는 이름만 지키면, 스프링이 에러 날 때 알아서 이 화면을 보여준다.
+    (없으면 하얀 "Whitelabel Error Page" 가 나온다)
+
+    ${status} : 404, 500 같은 번호
+    ${error}  : Not Found, Internal Server Error 같은 이름
+    진짜 원인은 화면에 안 나온다 → IntelliJ 콘솔의 빨간 글씨를 본다!
+-->
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>미로 실험실 - 에러</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<main class="page narrow">
+    <h1 th:text="|${status} ${error}|">500 에러</h1>
+    <p th:if="${status == 404}">그런 주소 없다. 주소 다시 봐라.</p>
+    <p th:if="${status == 403}">여기 들어올 권한 없다.</p>
+    <p th:if="${status != null and status >= 500}">서버가 넘어졌다. IntelliJ 콘솔의 <b>Caused by</b> 를 봐라.</p>
+    <a class="btn" th:href="@{/}">홈으로</a>
+</main>
+</body>
+</html>

@@ -1,0 +1,85 @@
+/* ============================================================
+   ★★★ 공용 파일 ★★★  화면 꾸미기
+   위쪽 [공용] 은 팀장만 고친다.
+   팀별 꾸미기는 맨 아래 "자기 구역"에만 추가한다.
+   ============================================================ */
+
+/* ===== [공용] 색깔 돌판: 색은 여기서만 정하고 아래에선 var(--이름) 으로 쓴다 ===== */
+:root {
+    --bg: #f3efe6;
+    --paper: #fffdf8;
+    --line: #e2d9c8;
+    --ink: #2b2622;
+    --muted: #8a7f70;
+    --brown: #6b4f2a;
+    --ok-bg: #e6f1df;  --ok: #2f5d1e;
+    --no-bg: #fbe4e1;  --no: #9b2c1f;
+}
+
+/* ===== [공용] 기본 ===== */
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: system-ui, sans-serif; }
+a { color: var(--brown); }
+h1 { font-size: 24px; margin: 0 0 12px; }
+h2 { font-size: 17px; margin: 0 0 8px; }
+code { background: var(--line); padding: 1px 6px; border-radius: 4px; }
+
+.page { max-width: 960px; margin: 0 auto; padding: 28px 16px; }
+.page.narrow { max-width: 420px; }
+.sub { color: var(--muted); font-size: 14px; }
+
+/* 머리띠 */
+.topbar {
+    display: flex; align-items: center; gap: 20px; flex-wrap: wrap;
+    padding: 12px 16px; background: var(--paper); border-bottom: 1px solid var(--line);
+}
+.logo { font-weight: 700; text-decoration: none; color: var(--ink); }
+.menu { display: flex; gap: 16px; flex: 1; align-items: center; }
+.menu a { text-decoration: none; }
+.who { display: flex; gap: 8px; align-items: center; font-size: 14px; }
+
+/* 카드 */
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-top: 20px; }
+.card { background: var(--paper); border: 1px solid var(--line); border-radius: 12px; padding: 20px; }
+.card p { color: var(--muted); font-size: 14px; }
+
+/* 폼 / 버튼 */
+label { display: block; margin-bottom: 14px; font-size: 14px; }
+input, select, textarea {
+    display: block; width: 100%; margin-top: 6px; padding: 10px;
+    border: 1px solid #cfc4b0; border-radius: 6px; font-size: 15px; background: #fff;
+}
+button, .btn {
+    display: inline-block; padding: 10px 16px; border: 0; border-radius: 6px;
+    background: var(--brown); color: #fff; font-size: 15px; text-decoration: none; cursor: pointer;
+}
+button.link { background: none; color: var(--brown); padding: 0; font-size: 14px; text-decoration: underline; }
+form.inline { display: inline; }
+
+/* 쪽지 (Controller 의 addFlashAttribute("message" / "error") 용) */
+.msg { padding: 10px; border-radius: 6px; font-size: 14px; }
+.msg.ok { background: var(--ok-bg); color: var(--ok); }
+.msg.error { background: var(--no-bg); color: var(--no); }
+.field-error { display: block; color: var(--no); font-size: 12px; margin-top: 4px; }
+
+/* 딱지 */
+.badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 12px; background: var(--line); }
+.badge.ok { background: var(--ok-bg); color: var(--ok); }
+.badge.no { background: var(--no-bg); color: var(--no); }
+
+/* 표 */
+table { width: 100%; border-collapse: collapse; font-size: 14px; background: var(--paper); }
+th, td { padding: 10px 8px; border-bottom: 1px solid var(--line); text-align: left; }
+th { color: var(--muted); font-weight: 600; }
+
+
+/* ===== [공용 폼] ===== */
+
+
+/* ===== [1번 미로] 구역 ===== */
+
+
+/* ===== [2번 데이터] 구역 ===== */
+
+
+/* ===== [3번 회원·랭킹·게시판] 구역 ===== */
