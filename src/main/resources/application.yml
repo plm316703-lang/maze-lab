@@ -28,7 +28,7 @@ spring:
       # validate = 테이블을 만들지도 고치지도 않고, Entity 와 맞는지 "검사만" 한다
       # create / update 로 바꾸면 남의 테이블과 데이터를 지우거나 바꾼다. 절대 금지
         # ★★★ 공유 DB 규칙 ★★★ 절대 create / update 로 바꾸지 않는다
-        ddl-auto: validate
+        ddl-auto: update
     # ↓ 여기부터는 hibernate 의 "형제" (jpa 바로 아래). hibernate 안에 넣으면 무시된다!
     show-sql: true                  # 실행되는 SQL 을 콘솔에 보여준다 (공부용)
     properties:

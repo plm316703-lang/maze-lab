@@ -3,61 +3,64 @@ package com.team.mazelab.member;
 import jakarta.persistence.*;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
-import java.time.LocalDate; // [필수] LocalDate 임포트 추가
 
 /**
  * 회원 엔티티. DB 테이블 "member" 한 줄 = Member 객체 하나.
- * @Entity : "이거 DB 테이블이다" 스프링한테 알림
- * 테이블은 db/01_member.sql 로 사람이 만든다. (공유 DB 라서 ddl-auto: validate)
- * 비밀번호는 절대 그대로 저장 안 한다! 암호화(BCrypt)된 글자만 저장.
+ *
+ * 칸: id, username, password, nickname, email, role
+ * 테이블 변경 기록: db/01_member.sql → db/changes/2026-10-15_member_nickname_email.sql
+ *
+ * 규칙
+ * - 비밀번호는 BCrypt 로 암호화된 글자만 저장한다 (원문 저장 금지)
+ * - setter 를 만들지 않는다. 값을 바꿀 일이 생기면 이름 있는 메서드로 (아래 EXTENSION 참고)
+ * - 회원 1명 = 캐릭터 1개. 캐릭터 이름은 따로 두지 않고 nickname 을 쓴다
  */
 @Entity
 @Table(name = "member")
-public class Member {
-
-    @Id                                                   // 기본키 (줄 번호)
-    @GeneratedValue(strategy = GenerationType.IDENTITY)   // 번호 DB가 1,2,3... 알아서 매김
+public class Member{
+    @Id@GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true, length = 30) // 아이디는 겹치면 안 됨
+    @Column(nullable = false, unique = true, length = 30)
     private String username;
 
-    @Column(nullable = false)                             // 암호화된 비밀번호
+    @Column(nullable = false) // 암호화된 비밀번호 (BCrypt 결과는 60글자)
     private String password;
 
-    @Column(nullable = false, length = 20)
-    private String name;                                  // 화면에 보일 이름
+    @Column(nullable = false, unique = true, length = 20) // 화면, 게시판, 자유시장에 보일 이름
+    private String nickname;
 
-    @Enumerated(EnumType.STRING)                          // DB에 "USER" 글자로 저장 (숫자 X → 순서 바뀌어도 안전)
-    @JdbcTypeCode(SqlTypes.VARCHAR)                       // MySQL 전용 ENUM 타입 말고 VARCHAR 칸으로 본다 (validate 통과용)
+    @Column(nullable = false, unique = true, length = 100) // 이메일. 나중에 비밀번호 찾기 등에 쓸 수 있음
+    private String email;
+
+    @Enumerated(EnumType.STRING)  // DB 에 "USER" 글자로 저장 (숫자로 저장하면 순서가 바뀔 때 뜻이 바뀜)
+    @JdbcTypeCode(SqlTypes.VARCHAR)                       // MySQL ENUM 타입이 아니라 VARCHAR 칸으로 본다 (validate 통과용)
     @Column(nullable = false, length = 20)
     private Role role;
 
-    @Column(name = "birth_date")
-    private LocalDate birthDate; // 생년월일
+    // JPA 가 DB 에서 꺼낸 값을 담을 때 쓰는 빈 생성자. 우리가 직접 쓰지 않으니 protected
+    protected Member(){}
 
-    @Column(length = 10)
-    private String gender;       // 성별 ("M" 또는 "F")
-
-    // JPA가 객체 만들 때 쓰는 빈 생성자. 우리가 직접 쓰지 않음 → protected
-    protected Member() {}
-
-    // 생년월일과 성별이 포함된 회원가입용 생성자 추가
-    public Member(String username, String encodedPassword, String name, LocalDate birthDate, String gender, Role role) {
+    /**
+     * 회원가입용 생성자.
+     * @param encodedPassword 반드시 passwordEncoder.encode() 를 거친 값을 넣는다
+     */
+    public Member(String username, String encodedPassword, String nickname, String email, Role role) {
         this.username = username;
         this.password = encodedPassword;
-        this.name = name;
-        this.birthDate = birthDate;
-        this.gender = gender;
+        this.nickname = nickname;
+        this.email = email;
         this.role = role;
     }
 
-    // getter
+    // EXTENSION: 닉네임 변경, 비밀번호 변경 기능이 생기면 setter 대신 이런 이름 있는 메서드로 추가
+    // public void changeNickname(String newNickname) { this.nickname = newNickname; }
+
+    // getter (값 읽기만)
     public Long getId() { return id; }
     public String getUsername() { return username; }
     public String getPassword() { return password; }
-    public String getName() { return name; }
+    public String getNickname() { return nickname; }
+    public String getEmail() { return email; }
     public Role getRole() { return role; }
-    public LocalDate getBirthDate() { return birthDate; }
-    public String getGender() { return gender; }
 }

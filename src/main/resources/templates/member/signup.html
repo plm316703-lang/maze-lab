@@ -2,28 +2,24 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>회원가입 - 미로 실험실</title>
+    <title>회원가입 - 겹눈 원정대</title>
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f6f9; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
         .signup-card { background: white; padding: 30px 40px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); width: 100%; max-width: 420px; }
         h2 { text-align: center; color: #333; margin-bottom: 25px; }
         .form-group { margin-bottom: 15px; }
         label { display: block; margin-bottom: 6px; font-weight: 600; color: #555; font-size: 14px; }
-        input[type="text"], input[type="password"], input[type="date"] { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; font-size: 14px; }
+        /* type="email" 칸도 같은 모양이 되도록 선택자에 추가 */
+        input[type="text"], input[type="password"], input[type="email"] { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; font-size: 14px; }
         input:focus { border-color: #007bff; outline: none; }
-        .id-group { display: flex; gap: 8px; }
-        .id-group input { flex: 1; }
-        .check-btn { padding: 0 12px; background-color: #6c757d; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 13px; white-space: nowrap; }
-        .check-btn:hover { background-color: #5a6268; }
-        .gender-group { display: flex; gap: 20px; align-items: center; margin-top: 5px; }
-        .gender-group label { font-weight: normal; margin-bottom: 0; cursor: pointer; }
         .error-msg { color: #dc3545; font-size: 12px; margin-top: 4px; }
-        .success-msg { color: #28a745; font-size: 12px; margin-top: 4px; }
+        /* 칸 하나가 아니라 "전체" 에러 (아이디·닉네임·이메일 중복) 를 보여줄 상자 */
+        .global-error { background: #fdecea; border: 1px solid #f5c2c7; border-radius: 5px; padding: 10px; margin-bottom: 15px; }
+        .global-error p { margin: 0; color: #b02a37; font-size: 13px; }
         .btn { width: 100%; background-color: #28a745; color: white; border: none; padding: 12px; border-radius: 5px; font-size: 16px; cursor: pointer; font-weight: bold; margin-top: 10px; }
         .btn:hover { background-color: #218838; }
         .login-link { text-align: center; margin-top: 15px; font-size: 14px; }
         .login-link a { color: #007bff; text-decoration: none; }
-        .login-link a:hover { text-decoration: underline; }
     </style>
 </head>
 <body>
@@ -31,84 +27,58 @@
 <div class="signup-card">
     <h2>회원가입</h2>
 
+    <!-- th:action : CSRF 토큰을 자동으로 넣어 준다 (그냥 action 을 쓰면 403) -->
+    <!-- th:object : 이 form 의 칸들이 memberFormDto 와 연결된다 -->
     <form th:action="@{/signup}" method="post" th:object="${memberFormDto}">
 
-        <!-- 아이디 입력 및 중복확인 -->
-        <div class="form-group">
-            <label for="username">아이디 (4~20자)</label>
-            <div class="id-group">
-                <input type="text" id="username" th:field="*{username}" placeholder="아이디 입력" required autofocus>
-                <button type="button" class="check-btn" onclick="checkDuplicateId()">중복확인</button>
-            </div>
-            <p id="idCheckMsg" class="error-msg" style="display:none;"></p>
-            <p th:if="${#fields.hasErrors('username')}" th:errors="*{username}" class="error-msg">Incorrect data</p>
+        <!-- ★ 전체 에러 : MemberController 의 bindingResult.reject(...) 로 넣은 메시지가 여기 뜬다.
+             이 상자가 없으면 "이미 가입된 이메일" 같은 중복 에러가 화면에 안 보인다 -->
+        <div th:if="${#fields.hasGlobalErrors()}" class="global-error">
+            <p th:each="err : ${#fields.globalErrors()}" th:text="${err}">에러 메시지</p>
         </div>
 
-        <!-- 비밀번호 입력 -->
+        <!-- 아이디 -->
+        <div class="form-group">
+            <label for="username">아이디 (4~20자)</label>
+            <input type="text" id="username" th:field="*{username}" placeholder="아이디 입력" required autofocus>
+            <p th:if="${#fields.hasErrors('username')}" th:errors="*{username}" class="error-msg">아이디 에러</p>
+        </div>
+
+        <!-- 비밀번호 -->
         <div class="form-group">
             <label for="password">비밀번호 (8~20자)</label>
             <input type="password" id="password" th:field="*{password}" placeholder="비밀번호 입력" required>
-            <p th:if="${#fields.hasErrors('password')}" th:errors="*{password}" class="error-msg">Incorrect data</p>
+            <p th:if="${#fields.hasErrors('password')}" th:errors="*{password}" class="error-msg">비밀번호 에러</p>
         </div>
 
         <!-- 비밀번호 재확인 -->
         <div class="form-group">
             <label for="passwordConfirm">비밀번호 재확인</label>
             <input type="password" id="passwordConfirm" th:field="*{passwordConfirm}" placeholder="비밀번호 재입력" required>
-            <p th:if="${#fields.hasErrors('passwordConfirm')}" th:errors="*{passwordConfirm}" class="error-msg">Incorrect data</p>
+            <p th:if="${#fields.hasErrors('passwordConfirm')}" th:errors="*{passwordConfirm}" class="error-msg">재확인 에러</p>
         </div>
 
-        <!-- 이름 입력 -->
+        <!-- 닉네임 (예전 "이름" 자리) -->
         <div class="form-group">
-            <label for="name">이름</label>
-            <input type="text" id="name" th:field="*{name}" placeholder="이름 입력" required>
-            <p th:if="${#fields.hasErrors('name')}" th:errors="*{name}" class="error-msg">Incorrect data</p>
+            <label for="nickname">닉네임 (2~20자, 게시판과 자유시장에 표시)</label>
+            <input type="text" id="nickname" th:field="*{nickname}" placeholder="닉네임 입력" required>
+            <p th:if="${#fields.hasErrors('nickname')}" th:errors="*{nickname}" class="error-msg">닉네임 에러</p>
         </div>
 
-        <!-- 생년월일 입력 -->
+        <!-- 이메일 : type="email" 이면 브라우저가 1차로 모양을 검사한다 (서버의 @Email 이 최종 검사) -->
         <div class="form-group">
-            <label for="birthDate">생년월일</label>
-            <input type="date" id="birthDate" th:field="*{birthDate}" required>
-            <p th:if="${#fields.hasErrors('birthDate')}" th:errors="*{birthDate}" class="error-msg">Incorrect data</p>
-        </div>
-
-        <!-- 남/여 성별 체크 -->
-        <div class="form-group">
-            <label>성별</label>
-            <div class="gender-group">
-                <label><input type="radio" th:field="*{gender}" value="M" required> 남자</label>
-                <label><input type="radio" th:field="*{gender}" value="F" required> 여자</label>
-            </div>
-            <p th:if="${#fields.hasErrors('gender')}" th:errors="*{gender}" class="error-msg">Incorrect data</p>
+            <label for="email">이메일</label>
+            <input type="email" id="email" th:field="*{email}" placeholder="example@email.com" required>
+            <p th:if="${#fields.hasErrors('email')}" th:errors="*{email}" class="error-msg">이메일 에러</p>
         </div>
 
         <button type="submit" class="btn">가입하기</button>
     </form>
 
     <div class="login-link">
-        이미 계정이 있으신가요? <a href="/login">로그인하기</a>
+        이미 계정이 있으신가요? <a th:href="@{/login}">로그인하기</a>
     </div>
 </div>
-
-<!-- 아이디 중복 확인용 간단 자바스크립트 (백엔드 API 연동 가능) -->
-<script>
-    function checkDuplicateId() {
-        const username = document.getElementById("username").value;
-        const msgBox = document.getElementById("idCheckMsg");
-
-        if (!username || username.length < 4) {
-            msgBox.style.display = "block";
-            msgBox.style.color = "#dc3545";
-            msgBox.innerText = "아이디를 4자 이상 입력해주세요.";
-            return;
-        }
-
-        // 간단한 안내 메시지 (서버 API 연동 전 임시 확인용)
-        msgBox.style.display = "block";
-        msgBox.style.color = "#28a745";
-        msgBox.innerText = "사용 가능한 아이디 형식입니다. (가입 시 최종 중복 검사 진행)";
-    }
-</script>
 
 </body>
 </html>
