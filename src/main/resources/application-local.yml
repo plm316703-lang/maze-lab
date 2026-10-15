@@ -20,5 +20,9 @@ spring:
     password: ${LOCAL_DB_PASSWORD}
   jpa:
     hibernate:
-      # 연습 DB 도 validate 로 둔다. 공유 DB 와 똑같은 조건에서 시험해야 의미가 있다
-      ddl-auto: validate
+        # 언제 쓰나?
+        #   공유 DB 대신 "내 컴퓨터 MySQL" 로 서버를 켤 때 (예: 프론트 팀원이 화면을 개발할 때)
+        #   빈 데이터베이스만 만들어 두면(CREATE DATABASE maze_local;) 테이블은 서버가 만든다
+        # 내 컴퓨터 연습 DB 도 update : 빈 DB 에서 서버를 켜면 Entity 를 보고 테이블을 알아서 만든다
+        # (예: 프론트 팀원이 자기 컴퓨터에서 서버를 켤 때. 공유 DB 는 백엔드 담당 전용)
+        ddl-auto: update
