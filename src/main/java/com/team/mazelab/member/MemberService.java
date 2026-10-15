@@ -1,5 +1,6 @@
 package com.team.mazelab.member;
 
+import com.team.mazelab.character.CharacterService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,10 +17,14 @@ public class MemberService {
 
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;  //비밀번호를 암호화
+    private final CharacterService characterService;
 
-    public MemberService(MemberRepository memberRepository, PasswordEncoder passwordEncoder) {
+    public MemberService(MemberRepository memberRepository,
+                         PasswordEncoder passwordEncoder,
+                         CharacterService characterService) {
         this.memberRepository = memberRepository;
         this.passwordEncoder = passwordEncoder;
+        this.characterService = characterService;
     }
 
     /** 회원가입 : 중복 검사 → 비밀번호 암호화 → 저장 */
@@ -34,7 +39,7 @@ public class MemberService {
         Member member = new Member(dto.getUsername(), encodedPassword, dto.getNickname(), email, Role.USER);
         Member saved = memberRepository.save(member);
 // EXTENSION (Step 2): 캐릭터 자동 생성. 같은 트랜잭션이라 캐릭터 생성이 실패하면 회원가입도 취소된다
-        // characterService.createFor(saved);
+         characterService.createFor(saved);
 
         return saved;
 
