@@ -51,7 +51,7 @@ import jakarta.persistence.*;
     private Item item;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 5)
+    @Column(length = 5)
     private Grade grade;
 
     @Enumerated(EnumType.STRING)
@@ -103,7 +103,16 @@ import jakarta.persistence.*;
         return equippedSlot != null;
     }
 
-    // EXTENSION (Step 4): public void changeGrade(Grade next) — 강화 성공/실패로 등급 변경
+    /**
+     * 등급 변경 (Step 4 강화). 성공하면 올라가고, A→S 실패면 B 로 내려간다.
+     * 어떤 등급으로 바꿀지는 Service 가 강화 규칙을 보고 정한다
+     */
+    public void changeGrade(Grade next) {
+        if (next == null) {
+            throw new IllegalArgumentException("등급은 비어 있을 수 없습니다.");
+        }
+        this.grade = next;
+    }
     // EXTENSION (Step 6): public void list() / unlist() — 시장 등록/취소 (장착 중이면 거부)
 
     // getter

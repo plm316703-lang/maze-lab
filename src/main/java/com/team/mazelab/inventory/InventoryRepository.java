@@ -27,4 +27,12 @@ public interface InventoryRepository extends JpaRepository<InventoryItem, Long> 
 
     /** 지금 그 칸에 장착 중인 것 (없으면 empty) */
     Optional<InventoryItem> findByCharacterAndEquippedSlot(GameCharacter character, ItemSlot slot);
+
+    /**
+     * 내 가방에서 특정 아이템(예: 5001 빛나는 원석)이면서 시장에 안 올린 줄들 (오래된 순)
+     *   → WHERE character_id = ? AND item_id = ? AND listed = false ORDER BY id
+     *   Item_Id : "item 안의 id" (밑줄 = 안으로 들어가기)
+     *   ListedFalse : listed = false 조건
+     */
+    List<InventoryItem> findByCharacterAndItem_IdAndListedFalseOrderByIdAsc(GameCharacter character, Long itemId);
 }
