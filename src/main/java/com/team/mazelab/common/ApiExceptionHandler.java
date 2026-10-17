@@ -6,6 +6,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 
 
 /**
@@ -43,7 +46,22 @@ public class ApiExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT)
             .body(new ErrorResponse("CONFLICT", e.getMessage()));
     }
-    // EXTENSION: @Valid 검사 실패(MethodArgumentNotValidException) → 400 + 어느 칸이 틀렸는지
-    //            요청 DTO 에 @NotNull 등을 붙이는 단계(3-3)에서 추가한다
+    /**
+     * @Valid 검사 실패 (예: {"itemId":null}) → 400
+     *   여러 칸이 틀렸어도 첫 번째 것만 알려 준다 → "itemId: 널이어서는 안됩니다"
+     */
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ErrorResponse> handleValidation(MethodArgumentNotValidException e) {
+        FieldError first = e.getBindingResult().getFieldErrors().get(0);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            .body(new ErrorResponse("VALIDATION_FAILED", first.getField() + ": " + first.getDefaultMessage()));
+    }
+
+    /** 본문이 아예 없거나 JSON 모양이 깨짐 (예: {"itemId":"abc"}) → 400 */
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ErrorResponse> handleUnreadable(HttpMessageNotReadableException e) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            .body(new ErrorResponse("BAD_REQUEST", "요청 본문(JSON)을 읽을 수 없습니다."));
+    }
 
 }

@@ -12,6 +12,10 @@ import jakarta.persistence.*;
  *
  * tier : 이 아이템이 "처음 나올 때"의 등급. 강화한 지금 등급은 inventory.grade 에 따로 저장한다.
  *        재료(MATERIAL)는 등급이 없어서 NULL.
+ *
+ *        ★ Step 3-3 : appearanceKey(외형 키) 추가
+ *  *   프론트가 "어떤 그림을 그릴지" 고르는 약속된 이름. 예) "weapon.sword", "armor.cloth"
+ *  *   이름(name)은 나중에 바뀔 수 있지만, 이 키는 그림 파일과 묶여 있어서 바꾸지 않는다.
  */
 @Entity
 @Table(name = "item")
@@ -35,6 +39,14 @@ public class Item {
     @Column(length = 5)                    // 재료는 NULL
     private Grade tier;
 
+
+    // ★ 새 칸. nullable = false 를 붙이지 않는다!
+    //   ddl-auto: update 는 "이미 있는 테이블"에 칸을 추가할 때 기존 28줄을 NULL 로 채운다.
+    //   NOT NULL 을 걸면 기존 줄 때문에 ALTER TABLE 이 실패할 수 있다.
+    //   → 대신 ItemCatalogInitializer 가 서버 켤 때 빈 칸을 채운다 (sync)
+    @Column(name = "appearance_key", length = 50)
+    private String appearanceKey;
+
     @Column(nullable = false)
     private int price;                     // 상점 가격 (되팔 때 기준)
 
@@ -52,12 +64,13 @@ public class Item {
     protected Item() {}   // JPA 용
 
     private Item(Long id, String name, ItemSlot slot, WeaponType weaponType,
-                 Grade tier, int price, int atk, int def, int hp) {
+                 Grade tier, String appearanceKey, int price, int atk, int def, int hp) {
         this.id = id;
         this.name = name;
         this.slot = slot;
         this.weaponType = weaponType;
         this.tier = tier;
+        this.appearanceKey = appearanceKey;
         this.price = price;
         this.atk = atk;
         this.def = def;
@@ -68,20 +81,37 @@ public class Item {
 
     /** 무기 */
     public static Item weapon(long id, String name, WeaponType type, Grade tier, int price, int atk) {
-        return new Item(id, name, ItemSlot.WEAPON, type, tier, price, atk, 0, 0);
+        String key = "weapon." + type.name().toLowerCase();
+        return new Item(id, name, ItemSlot.WEAPON, type, tier, key, price, atk, 0, 0);
     }
 
-    /** 방어구 또는 장신구 */
-    public static Item gear(long id, String name, ItemSlot slot, Grade tier, int price, int atk, int def, int hp) {
+    /** 방어구 또는 장신구. 외형 키를 직접 적는다 (맨 끝 칸) */
+    public static Item gear(long id, String name, ItemSlot slot, Grade tier,
+                            int price, int atk, int def, int hp, String appearanceKey) {
         if (slot == ItemSlot.WEAPON || slot == ItemSlot.MATERIAL) {
             throw new IllegalArgumentException("gear() 는 ARMOR, ACCESSORY 만 만듭니다.");
         }
-        return new Item(id, name, slot, null, tier, price, atk, def, hp);
+        return new Item(id, name, slot, null, tier, appearanceKey, price, atk, def, hp);
     }
 
     /** 재료 (등급, 능력치, 가격 없음) */
-    public static Item material(long id, String name) {
-        return new Item(id, name, ItemSlot.MATERIAL, null, null, 0, 0, 0, 0);
+    public static Item material(long id, String name, String appearanceKey) {
+        return new Item(id, name, ItemSlot.MATERIAL, null, null, appearanceKey, 0, 0, 0, 0);
+    }
+    /**
+     * 카탈로그 원본(source)의 값으로 DB 에 이미 있는 줄을 맞춘다.
+     *   이미 저장된 아이템에 "나중에 생긴 칸"을 채울 때 쓴다.
+     *   @Transactional 안에서 값만 바꾸면 끝날 때 JPA 가 알아서 UPDATE 한다 (변경 감지, dirty checking)
+     *
+     * @return 실제로 바뀐 게 있으면 true
+     */
+    public boolean syncFrom(Item source) {
+        if (source.appearanceKey != null && !source.appearanceKey.equals(this.appearanceKey)) {
+            this.appearanceKey = source.appearanceKey;
+            return true;
+        }
+        return false;
+        // EXTENSION: 가격, 능력치 밸런스를 바꿀 때도 여기서 같이 맞추면 된다
     }
 
     // getter
@@ -90,6 +120,7 @@ public class Item {
     public ItemSlot getSlot() { return slot; }
     public WeaponType getWeaponType() { return weaponType; }
     public Grade getTier() { return tier; }
+    public String getAppearanceKey() { return appearanceKey; }
     public int getPrice() { return price; }
     public int getAtk() { return atk; }
     public int getDef() { return def; }
